@@ -37,7 +37,6 @@ rm -f /etc/ssh/ssh_host_*
 rm -f $HOME/.bash_history
 history -c
 
-
 dd if=/dev/zero of=/zero_file bs=1M || true
 sync
 rm /zero_file
