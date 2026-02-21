@@ -14,7 +14,6 @@ Build VM images using Packer
 OPTIONS:
     ubuntu         Build basic Ubuntu 24.04 image with QEMU Guest Agent
     ubuntu-xrdp    Build Ubuntu 24.04 image with XRDP desktop environment
-    rocky          Build Rocky Linux image (not yet implemented)
     rocky-xrdp     Build Rocky Linux image with XRDP (not yet implemented)
     help           Display this help message
 
@@ -71,12 +70,12 @@ build_image() {
         -var "output_directory=${packer_output_dir}" \
         -var "vm_name=${packer_vm_name}" \
         "$packer_file"
-    
+
     if [ ! -f "$packer_output_dir/$packer_vm_name" ]; then
         echo "Error: Source file '$packer_output_dir/$packer_vm_name' not found after build"
         exit 1
     fi
-        
+
     echo "Compressing image..."
     qemu-img convert -O qcow2 -c "$packer_output_dir/$packer_vm_name" "$dest_file"
     echo "Output: $dest_file"
@@ -99,13 +98,13 @@ case "$BUILD_TARGET" in
             "images/ubuntu-24.04-xrdp.img" \
             "Ubuntu 24.04 with XRDP"
         ;;
-    rocky)
-        echo "Error: Rocky Linux build is not yet implemented"
-        exit 1
-        ;;
     rocky-xrdp)
-        echo "Error: Rocky Linux with XRDP build is not yet implemented"
-        exit 1
+        build_image \
+            "rocky-10-xrdp.hcl" \
+            "output-rocky-xrdp" \
+            "rocky-10-xrdp.qcow2" \
+            "images/rocky-10-xrdp.img" \
+            "Rocky Linux 10 with XRDP"
         ;;
     help|--help|-h)
         usage
