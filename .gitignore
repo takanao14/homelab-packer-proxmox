@@ -1,0 +1,6 @@
+.idea
+.terragrunt-cache
+.terraform.*
+.envrc
+images/*
+output*/
