@@ -20,10 +20,10 @@ variable "vm_name" {
   description = "Name of the output VM image file"
 }
 
-source "qemu" "rocky_example" {
+source "qemu" "rocky10-xrdp" {
   # 公式イメージのURLとチェックサム
-  iso_url            = "https://download.rockylinux.org/pub/rocky/10/isos/x86_64/Rocky-10-GenericCloud.qcow2"
-  iso_checksum       = "file:https://download.rockylinux.org/pub/rocky/10/isos/x86_64/SHA256SUMS"
+  iso_url            = "https://download.rockylinux.org/pub/rocky/10/images/x86_64/Rocky-10-GenericCloud-Base.latest.x86_64.qcow2"
+  iso_checksum       = "file:https://download.rockylinux.org/pub/rocky/10/images/x86_64/CHECKSUM"
   disk_image         = true
 
   cpus = 2
@@ -50,13 +50,13 @@ source "qemu" "rocky_example" {
 }
 
 build {
-  sources = ["source.qemu.ubuntu_example"]
+  sources = ["source.qemu.rocky10-xrdp"]
 
   # パッケージのインストールとクリーンアップ
   provisioner "shell" {
     scripts = [
-      "scripts/timezone.sh",
-      "scripts/cleanup.sh"
+      "rocky-scripts/timezone.sh",
+      "rocky-scripts/cleanup.sh"
     ]
     execute_command = "chmod +x {{ .Path }}; sudo -S bash -c '{{ .Vars }} {{ .Path }}'"
   }

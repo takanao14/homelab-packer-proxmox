@@ -3,6 +3,7 @@
 # Usage: ./build.sh [ubuntu|ubuntu-xrdp|rocky]
 
 set -euo pipefail
+set -x
 
 # Function to display usage information
 usage() {
@@ -100,7 +101,7 @@ case "$BUILD_TARGET" in
         ;;
     rocky-xrdp)
         build_image \
-            "rocky-10-xrdp.hcl" \
+            "rocky-10-xrdp.pkr.hcl" \
             "output-rocky-xrdp" \
             "rocky-10-xrdp.qcow2" \
             "images/rocky-10-xrdp.img" \
