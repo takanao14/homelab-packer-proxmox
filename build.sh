@@ -101,11 +101,11 @@ case "$BUILD_TARGET" in
         ;;
     rocky-xrdp)
         build_image \
-            "rocky-10-xrdp.pkr.hcl" \
+            "rocky-9-xrdp.pkr.hcl" \
             "output-rocky-xrdp" \
-            "rocky-10-xrdp.qcow2" \
-            "images/rocky-10-xrdp.img" \
-            "Rocky Linux 10 with XRDP"
+            "rocky-9-xrdp.qcow2" \
+            "images/rocky-9-xrdp.img" \
+            "Rocky Linux 9 with XRDP"
         ;;
     help|--help|-h)
         usage

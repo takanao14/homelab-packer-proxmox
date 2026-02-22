@@ -16,13 +16,12 @@ dnf install -y \
     qemu-kvm \
     qemu-img \
     libvirt \
-    libvirt-daemon \
-    libvirt-daemon-kvm \
-    libvirt-client \
-    bridge-utils \
     virt-install \
     virt-manager \
-    libvirt-devel \
-    cloud-utils \
-    genisoimage
+    xorriso \
+    libguestfs-tools
 
+# モジュラーデーモンのソケットを一括で有効化する例
+for unit in qemu network storage nodedev nwfilter secret interface; do
+    sudo systemctl enable --now virt${unit}d.socket
+done

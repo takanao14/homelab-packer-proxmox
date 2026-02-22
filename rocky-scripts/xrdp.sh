@@ -12,71 +12,54 @@ echo "Installing XRDP desktop environment with XFCE and Japanese support..."
 LOCALE="${LOCALE:-ja_JP.UTF-8}"
 LANG_PACK="${LANG_PACK:-ja}"
 
+# Install EPEL repository for additional packages
+dnf install -y epel-release
+dnf config-manager --set-enabled crb
+
 # Update package lists
+dnf clean all
 dnf update -y
+dnf upgrade -y
 
-# Install language pack and base system for the configured locale
-dnf install -y glibc-langpack-ja
+# Install bash-completion for improved command-line experience
+dnf install -y bash-completion
 
-# Install XFCE4 desktop environment and additional goodies
-dnf install -y @xfce-desktop-environment xfce4-goodies
+dnf groupinstall -y "Xfce"
 
-# Install XRDP remote desktop protocol server
-dnf install -y xrdp
+dnf install -y xrdp xorgxrdp
 
-# Install Fcitx5 input method framework with Mozc (Japanese input)
-dnf install -y fcitx5 fcitx5-mozc fcitx5-configtool
+dnf install -y langpacks-ja glibc-langpack-ja
 
-# Install Noto CJK fonts for proper Asian character rendering
-dnf install -y google-noto-sans-cjk-fonts google-noto-serif-cjk-fonts
+dnf install -y ibus ibus-anthy
 
-# Generate locale if needed
-localedef -i ja_JP -f UTF-8 ja_JP.UTF-8 2>/dev/null || true
+dnf install -y google-noto-sans-cjk-jp-fonts
 
-# Add xrdp user to ssl-cert group (if group exists)
-getent group ssl-cert > /dev/null && adduser xrdp ssl-cert || true
+localectl set-locale LANG="${LOCALE}"
 
-# Create custom XRDP startup script
-# This script configures the environment and starts XFCE4 with Fcitx5
-cat > /etc/xrdp/startwm.sh << EOF
+mv /usr/libexec/xrdp/startwm.sh /usr/libexec/xrdp/startwm.sh.bak
+cat > /usr/libexec/xrdp/startwm.sh << EOF
 #!/bin/sh
-# Set locale and input method environment variables
-export LANG="${LOCALE}"
-export GTK_IM_MODULE=fcitx
-export QT_IM_MODULE=fcitx
-export XMODIFIERS=@im=fcitx
+export GTK_IM_MODULE=ibus
+export QT_IM_MODULE=ibus
+export XMODIFIERS=@im=ibus
+ibus-daemon -drx  # IBusをバックグラウンドで起動
 
-# Configure .Xauthority file for X11 authentication
-# Ensure XAUTHORITY is set and writable
-if [ -z "\$XAUTHORITY" ]; then
-    export XAUTHORITY=\$HOME/.Xauthority
+if [ -x /usr/bin/startxfce4 ]; then
+    exec /usr/bin/startxfce4
 fi
-if [ ! -f "\$XAUTHORITY" ] || [ ! -w "\$XAUTHORITY" ]; then
-    rm -f "\$XAUTHORITY"
-    touch "\$XAUTHORITY"
-    chmod 600 "\$XAUTHORITY"
-fi
-
-# Start Fcitx5 input method daemon in background
-(sleep 2; fcitx5 -d) &
-
-# Start XFCE4 desktop environment
-exec startxfce4
 EOF
 
-# Make the startup script executable
-chmod +x /etc/xrdp/startwm.sh
+chmod +x /usr/libexec/xrdp/startwm.sh
 
-# Add input method environment variables system-wide
-if ! grep -q "GTK_IM_MODULE=fcitx" /etc/environment; then
-cat >> /etc/environment << 'EOF'
-GTK_IM_MODULE=fcitx
-QT_IM_MODULE=fcitx
-XMODIFIERS=@im=fcitx
-EOF
-fi
+# # Add input method environment variables system-wide
+# if ! grep -q "GTK_IM_MODULE=fcitx" /etc/environment; then
+# cat >> /etc/environment << 'EOF'
+# GTK_IM_MODULE=fcitx
+# QT_IM_MODULE=fcitx
+# XMODIFIERS=@im=fcitx
+# EOF
+# fi
 
 # Enable and start XRDP service
 systemctl enable xrdp
 systemctl restart xrdp
-
