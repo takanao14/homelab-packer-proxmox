@@ -12,7 +12,7 @@ dnf update -y
 
 # Install Google Chrome browser
 # Download and install the latest stable version
-wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+curl -sS -L -o google-chrome-stable_current_x86_64.rpm https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
 dnf install -y ./google-chrome-stable_current_x86_64.rpm
 rm -f google-chrome-stable_current_x86_64.rpm
 
@@ -25,34 +25,27 @@ dnf install -y wireshark
 # Add Microsoft RPM repository for VS Code
 rpm --import https://packages.microsoft.com/keys/microsoft.asc
 cat > /etc/yum.repos.d/vscode.repo << 'EOF'
-[vscode]
+[code]
 name=Visual Studio Code
 baseurl=https://packages.microsoft.com/yumrepos/vscode
 enabled=1
+autorefresh=1
+type=rpm-md
 gpgcheck=1
 gpgkey=https://packages.microsoft.com/keys/microsoft.asc
 EOF
 
 # Install VS Code
-dnf update -y
+dnf check-update
 dnf install -y code
 
 # Install HashiCorp tools (Terraform, Packer, Vault)
 # Reference: https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
 # These tools are essential for infrastructure-as-code and secret management
 
-# Add HashiCorp RPM repository
-rpm --import https://apt.releases.hashicorp.com/gpg
-cat > /etc/yum.repos.d/hashicorp.repo << 'EOF'
-[hashicorp-rhel]
-name=HashiCorp Stable - RHEL
-baseurl=https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable
-enabled=1
-gpgcheck=1
-gpgkey=https://apt.releases.hashicorp.com/gpg
-EOF
+yum install -y yum-utils
+sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
 
 # Install Terraform, Packer, and Vault
 dnf update -y
 dnf install -y terraform packer vault
-

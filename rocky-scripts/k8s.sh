@@ -39,17 +39,6 @@ dnf install -y kubectl
 
 # Install Helm - Kubernetes package manager
 # Reference: https://helm.sh/docs/intro/install/
-# Helm helps you manage Kubernetes applications with charts
-curl -fsSL https://packages.buildkite.com/helm-linux/helm-rpm/gpgkey | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null
-cat > /etc/yum.repos.d/helm-stable-el.repo << 'EOF'
-[helm-stable-el]
-name=Helm Stable - EL
-baseurl=https://packages.buildkite.com/helm-linux/helm-rpm/any/
-enabled=1
-gpgcheck=1
-gpgkey=https://packages.buildkite.com/helm-linux/helm-rpm/gpgkey
-EOF
-dnf update -y
 dnf install -y helm
 
 # Install kubie - Kubernetes context and namespace switcher
@@ -81,4 +70,3 @@ rm -rf "${TMP_DIR}"
 echo "Installing k0sctl ${K0SCTL_VERSION}..."
 curl -fSL "https://github.com/k0sproject/k0sctl/releases/download/${K0SCTL_VERSION}/k0sctl-linux-amd64" -o /usr/local/bin/k0sctl
 chmod 0755 /usr/local/bin/k0sctl
-
