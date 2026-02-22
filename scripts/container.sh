@@ -10,5 +10,4 @@ echo "Installing Podman container runtime..."
 apt-get update
 
 # Install Podman and Docker compatibility layer
-# podman-docker provides docker command aliases for Podman
 apt-get install -y podman podman-docker

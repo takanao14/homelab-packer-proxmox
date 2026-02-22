@@ -7,15 +7,13 @@ set -euo pipefail
 
 echo "Installing XRDP desktop environment with XFCE and Japanese support..."
 
-# Set locale and language pack (can be overridden via environment variables)
-# Default: ja_JP.UTF-8 with Japanese language pack
+# Set locale
 LOCALE="${LOCALE:-ja_JP.UTF-8}"
-LANG_PACK="${LANG_PACK:-ja}"
 
 # Update package lists
 apt-get update
 # Install language pack and base system for the configured locale
-apt-get install -y language-pack-${LANG_PACK} language-pack-${LANG_PACK}-base
+apt-get install -y language-pack-ja language-pack-ja-base
 
 # Install XFCE4 desktop environment and additional goodies
 apt-get install -y xfce4 xfce4-goodies

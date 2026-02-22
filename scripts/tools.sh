@@ -1,7 +1,5 @@
 #!/bin/bash
 # Desktop and development tools installation script
-# Installs Chrome, Wireshark, VS Code, and HashiCorp tools
-# These tools are commonly used for development and system administration
 
 set -euo pipefail
 
@@ -11,19 +9,16 @@ echo "Installing desktop and development tools..."
 apt-get update
 
 # Install Google Chrome browser
-# Download and install the latest stable version
-wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb 
+wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 dpkg -i google-chrome-stable_current_amd64.deb || apt-get -f install -y
 rm -f google-chrome-stable_current_amd64.deb
 
 # Install Wireshark network protocol analyzer
-# DEBIAN_FRONTEND=noninteractive prevents interactive prompts during installation
 DEBIAN_FRONTEND=noninteractive apt-get install -y wireshark
 
 # Install Visual Studio Code
 # Reference: https://code.visualstudio.com/docs/setup/linux#_install-vs-code-on-linux
 
-# Pre-configure debconf to automatically add Microsoft repository
 echo "code code/add-microsoft-repo boolean true" | debconf-set-selections
 
 # Install dependencies and add Microsoft GPG key
@@ -33,7 +28,7 @@ install -D -o root -g root -m 644 microsoft.gpg /usr/share/keyrings/microsoft.gp
 rm -f microsoft.gpg
 
 # Configure VS Code repository using DEB822 format
-cat > /etc/apt/sources.list.d/vscode.sources << 'EOF' 
+cat > /etc/apt/sources.list.d/vscode.sources << 'EOF'
 Types: deb
 URIs: https://packages.microsoft.com/repos/code
 Suites: stable
@@ -48,8 +43,7 @@ apt-get update
 apt-get install -y code
 
 # Install HashiCorp tools (Terraform, Packer, Vault)
-# Reference: https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
-# These tools are essential for infrastructure-as-code and secret management
+# Reference: https://developer.hashicorp.com/terraform/install
 
 # Install prerequisites
 apt-get install -y gnupg software-properties-common
