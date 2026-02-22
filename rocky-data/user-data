@@ -1,12 +1,6 @@
 #cloud-config
-users:
-  - name: rocky
-    plaintext_passwd: changeme
-    lock_passwd: false
-    sudo: ALL=(ALL) NOPASSWD:ALL
-    shell: /bin/bash
 ssh_pwauth: true
 chpasswd:
+  expire: false
   list: |
     rocky:changeme
-  expire: false
