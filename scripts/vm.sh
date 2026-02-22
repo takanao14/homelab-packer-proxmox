@@ -23,4 +23,5 @@ apt-get install -y \
     virt-manager \
     cpu-checker \
     cloud-image-utils \
-    genisoimage
+    xorriso \
+    libguestfs-tools
