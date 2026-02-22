@@ -21,7 +21,7 @@ dnf install -y \
     xorriso \
     libguestfs-tools
 
-# モジュラーデーモンのソケットを一括で有効化する例
+# Enable per-subsystem libvirt sockets for on-demand activation
 for unit in qemu network storage nodedev nwfilter secret interface; do
     sudo systemctl enable --now virt${unit}d.socket
 done

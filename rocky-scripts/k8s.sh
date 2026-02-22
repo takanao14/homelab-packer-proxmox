@@ -42,13 +42,11 @@ dnf install -y kubectl
 dnf install -y helm
 
 # Install kubie - Kubernetes context and namespace switcher
-# Kubie provides easier context switching and isolated shell sessions per context
 echo "Installing kubie ${KUBIE_VERSION}..."
 curl -fsSL "https://github.com/sbstp/kubie/releases/download/${KUBIE_VERSION}/kubie-linux-amd64" -o /usr/local/bin/kubie
 chmod 0755 /usr/local/bin/kubie
 
 # Install k9s - Terminal-based UI for Kubernetes clusters
-# k9s provides a powerful terminal UI for managing Kubernetes resources
 echo "Installing k9s ${K9S_VERSION}..."
 TMP_DIR=$(mktemp -d)
 curl -fsSL "https://github.com/derailed/k9s/releases/download/${K9S_VERSION}/k9s_Linux_amd64.tar.gz" -o "${TMP_DIR}/k9s.tar.gz"
@@ -57,7 +55,6 @@ install -m 0755 "${TMP_DIR}/k9s" /usr/local/bin/k9s
 rm -rf "${TMP_DIR}"
 
 # Install helmfile - Declarative Helm chart deployment tool
-# Helmfile allows you to define multiple Helm releases in a declarative manner
 echo "Installing helmfile v${HELMFILE_VERSION}..."
 TMP_DIR=$(mktemp -d)
 curl -fsSL "https://github.com/helmfile/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION}_linux_amd64.tar.gz" -o "${TMP_DIR}/helmfile.tar.gz"
@@ -66,7 +63,6 @@ install -m 0755 "${TMP_DIR}/helmfile" /usr/local/bin/helmfile
 rm -rf "${TMP_DIR}"
 
 # Install k0sctl - k0s cluster lifecycle management tool
-# k0sctl is used to bootstrap and manage k0s Kubernetes clusters
 echo "Installing k0sctl ${K0SCTL_VERSION}..."
 curl -fSL "https://github.com/k0sproject/k0sctl/releases/download/${K0SCTL_VERSION}/k0sctl-linux-amd64" -o /usr/local/bin/k0sctl
 chmod 0755 /usr/local/bin/k0sctl

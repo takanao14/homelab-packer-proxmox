@@ -34,6 +34,7 @@ fi
 
 rm -f /etc/ssh/ssh_host_*
 
+# Clear shell history to avoid leaking build-time commands
 rm -f $HOME/.bash_history
 history -c
 
@@ -44,4 +45,3 @@ sync
 
 # Remove the default rocky user created during installation
 userdel -r -f rocky
-

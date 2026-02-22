@@ -7,13 +7,12 @@ set -euo pipefail
 
 echo "Installing XRDP desktop environment with XFCE and Japanese support..."
 
-# Set locale and language pack (can be overridden via environment variables)
-# Default: ja_JP.UTF-8 with Japanese language pack
+# Set locale
 LOCALE="${LOCALE:-ja_JP.UTF-8}"
-LANG_PACK="${LANG_PACK:-ja}"
 
 # Install EPEL repository for additional packages
 dnf install -y epel-release
+# Enable CRB to satisfy XRDP/Xfce dependencies on Rocky
 dnf config-manager --set-enabled crb
 
 # Update package lists
@@ -24,18 +23,25 @@ dnf upgrade -y
 # Install bash-completion for improved command-line experience
 dnf install -y bash-completion
 
+# Install the XFCE desktop environment group
 dnf groupinstall -y "Xfce"
 
+# Install XRDP server and Xorg backend
 dnf install -y xrdp xorgxrdp
 
+# Install Japanese language packs
 dnf install -y langpacks-ja glibc-langpack-ja
 
+# Install IBus with Anthy for Japanese input
 dnf install -y ibus ibus-anthy
 
+# Install Japanese CJK fonts
 dnf install -y google-noto-sans-cjk-jp-fonts
 
+# Persist locale configuration
 localectl set-locale LANG="${LOCALE}"
 
+# Replace XRDP session startup to launch IBus and XFCE
 mv /usr/libexec/xrdp/startwm.sh /usr/libexec/xrdp/startwm.sh.bak
 cat > /usr/libexec/xrdp/startwm.sh << EOF
 #!/bin/sh
@@ -50,15 +56,6 @@ fi
 EOF
 
 chmod +x /usr/libexec/xrdp/startwm.sh
-
-# # Add input method environment variables system-wide
-# if ! grep -q "GTK_IM_MODULE=fcitx" /etc/environment; then
-# cat >> /etc/environment << 'EOF'
-# GTK_IM_MODULE=fcitx
-# QT_IM_MODULE=fcitx
-# XMODIFIERS=@im=fcitx
-# EOF
-# fi
 
 # Enable and start XRDP service
 systemctl enable xrdp

@@ -36,13 +36,11 @@ gpgkey=https://packages.microsoft.com/keys/microsoft.asc
 EOF
 
 # Install VS Code
-dnf check-update
+dnf update -y
 dnf install -y code
 
 # Install HashiCorp tools (Terraform, Packer, Vault)
-# Reference: https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
-# These tools are essential for infrastructure-as-code and secret management
-
+# Reference: https://developer.hashicorp.com/terraform/install
 yum install -y yum-utils
 sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
 

@@ -10,5 +10,4 @@ echo "Installing Podman container runtime..."
 dnf update -y
 
 # Install Podman and Docker compatibility layer
-# podman-docker provides docker command aliases for Podman
 dnf install -y podman podman-docker
