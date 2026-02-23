@@ -13,6 +13,7 @@ LOCALE="${LOCALE:-ja_JP.UTF-8}"
 # Install EPEL repository for additional packages
 dnf install -y epel-release
 # Enable CRB to satisfy XRDP/Xfce dependencies on Rocky
+dnf install -y dnf-plugins-core
 dnf config-manager --set-enabled crb
 
 # Update package lists
