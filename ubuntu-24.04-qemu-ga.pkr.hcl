@@ -20,7 +20,7 @@ variable "vm_name" {
   description = "Name of the output VM image file"
 }
 
-source "qemu" "ubuntu_example" {
+source "qemu" "ubuntu-24.04-qemu-ga" {
   # 公式イメージのURLとチェックサム
   iso_url            = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
   iso_checksum       = "file:https://cloud-images.ubuntu.com/noble/current/SHA256SUMS"
@@ -28,21 +28,21 @@ source "qemu" "ubuntu_example" {
 
   cpus = 2
   memory = 2048
-  
+
   # 出力設定
   output_directory   = var.output_directory
   vm_name            = var.vm_name
   format             = "qcow2"
   disk_size          = "10G"
   accelerator        = "kvm"
-  
+
   # SSH接続設定
   ssh_username       = "ubuntu"
   ssh_password       = "changeme"
   ssh_timeout        = "15m"
-  
+
   # Cloud-Init をシードディスクとして接続
-  cd_files = ["./http/user-data", "./http/meta-data"]
+  cd_files = ["./cinit/ubuntu/user-data", "./cinit/ubuntu/meta-data"]
   cd_label = "cidata"
 
   # ヘッドレス（画面なし）で実行
@@ -50,13 +50,13 @@ source "qemu" "ubuntu_example" {
 }
 
 build {
-  sources = ["source.qemu.ubuntu_example"]
+  sources = ["source.qemu.ubuntu-24.04-qemu-ga"]
 
   # パッケージのインストールとクリーンアップ
   provisioner "shell" {
     scripts = [
-      "scripts/qemu-ga.sh",
-      "scripts/cleanup.sh"
+      "scripts/ubuntu/qemu-ga.sh",
+      "scripts/ubuntu/cleanup.sh"
     ]
     execute_command = "chmod +x {{ .Path }}; sudo -S bash -c '{{ .Vars }} {{ .Path }}'"
   }
