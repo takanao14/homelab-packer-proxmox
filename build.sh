@@ -1,11 +1,7 @@
 #!/bin/bash
-# Packer build script for creating VM images
-# Usage: ./build.sh [ubuntu|ubuntu-xrdp|rocky]
-
 set -euo pipefail
-set -x
 
-# Function to display usage information
+# Print help and exit with non-zero status.
 usage() {
     cat << EOF
 Usage: $0 [OPTION]
@@ -13,8 +9,9 @@ Usage: $0 [OPTION]
 Build VM images using Packer
 
 OPTIONS:
-    ubuntu         Build basic Ubuntu 24.04 image with QEMU Guest Agent
+    ubuntu         Build a basic Ubuntu 24.04 image with the QEMU Guest Agent and the timezone set to JST
     ubuntu-xrdp    Build Ubuntu 24.04 image with XRDP desktop environment
+    rocky          Build a basic Rocky Linux image with the timezone set to JST
     rocky-xrdp     Build Rocky Linux image with XRDP (not yet implemented)
     help           Display this help message
 
@@ -26,96 +23,92 @@ EOF
     exit 1
 }
 
-# Check if an argument is provided
 if [ $# -eq 0 ]; then
     echo "Error: No build target specified"
-    echo ""
     usage
 fi
 
 BUILD_TARGET="$1"
 
-# Ensure images directory exists
 mkdir -p images
 
-# Function to check if destination file exists and prompt for overwrite
+# Confirm overwrite when output already exists.
 check_overwrite() {
-    local dest_file="$1"
+    local image_file="$1"
     local output_dir="$2"
-    if [ -f "$dest_file" ]; then
-        echo "Warning: Destination file '$dest_file' already exists"
+    if [ -f "$image_file" ] || [ -d "$output_dir" ]; then
+        echo "Warning: Destination file '$image_file' already exists"
         read -p "Do you want to overwrite it? (y/N) " -n 1 -r
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
             echo "Build cancelled by user"
             exit 0
         fi
-        rm -rf "$dest_file"
+        rm -rf "$image_file"
         rm -rf "$output_dir"
     fi
 }
 
-# Function to build and compress VM image
-# Arguments: packer_file, packer_output_dir, packer_vm_name, dest_file, description
+# Run a Packer build for the given target.
+# Arguments: packer_file, packer_output_dir, packer_vm_name, image_file
 build_image() {
     local packer_file="$1"
     local packer_output_dir="$2"
     local packer_vm_name="$3"
-    local dest_file="$4"
-    local description="$5"
+    local image_file="$4"
 
-    check_overwrite "$dest_file" "$packer_output_dir"
+    check_overwrite "$image_file" "$packer_output_dir"
 
-    echo "Building ${description}..."
+    echo "Building ${packer_vm_name}..."
     packer build \
         -var "output_directory=${packer_output_dir}" \
         -var "vm_name=${packer_vm_name}" \
+        -var "image_name=${image_file}" \
         "$packer_file"
 
     if [ ! -f "$packer_output_dir/$packer_vm_name" ]; then
         echo "Error: Source file '$packer_output_dir/$packer_vm_name' not found after build"
         exit 1
     fi
-
-    echo "Compressing image..."
-    qemu-img convert -O qcow2 -c "$packer_output_dir/$packer_vm_name" "$dest_file"
-    echo "Output: $dest_file"
 }
 
+# Map CLI targets to their Packer templates and outputs.
 case "$BUILD_TARGET" in
     ubuntu)
         build_image \
-            "ubuntu-24.04-qemu-ga.pkr.hcl" \
+            "ubuntu-24.04-custom.pkr.hcl" \
             "output-ubuntu-custom" \
             "ubuntu-24.04-custom.qcow2" \
-            "images/ubuntu-24.04-custom.img" \
-            "Ubuntu 24.04 base image with QEMU Guest Agent"
+            "images/ubuntu-24.04-custom.img"
         ;;
     ubuntu-xrdp)
         build_image \
             "ubuntu-24.04-xrdp.pkr.hcl" \
             "output-ubuntu-xrdp" \
             "ubuntu-24.04-xrdp.qcow2" \
-            "images/ubuntu-24.04-xrdp.img" \
-            "Ubuntu 24.04 with XRDP"
+            "images/ubuntu-24.04-xrdp.img"
+        ;;
+    rocky)
+        build_image \
+            "rocky-10-custom.pkr.hcl" \
+            "output-rocky" \
+            "rocky-10-custom.qcow2" \
+            "images/rocky-10-custom.img"
         ;;
     rocky-xrdp)
         build_image \
             "rocky-9-xrdp.pkr.hcl" \
             "output-rocky-xrdp" \
             "rocky-9-xrdp.qcow2" \
-            "images/rocky-9-xrdp.img" \
-            "Rocky Linux 9 with XRDP"
+            "images/rocky-9-xrdp.img"
         ;;
     help|--help|-h)
         usage
         ;;
     *)
         echo "Error: Unknown build target '$BUILD_TARGET'"
-        echo ""
         usage
         ;;
 esac
 
-echo ""
 echo "Build completed successfully!"
