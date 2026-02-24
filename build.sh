@@ -116,16 +116,16 @@ case "$BUILD_TARGET" in
             "output-ubuntu-xrdp/ubuntu-24.04-xrdp.qcow2" \
             "images/ubuntu-24.04-xrdp.img"
         ;;
-    rocky10)
+    rocky)
         build_image \
             "rocky-10-custom.pkr.hcl" \
-            "output-rocky/rocky-10-custom.qcow2" \
+            "output-rocky-10-custom/rocky-10-custom.qcow2" \
             "images/rocky-10-custom.img"
         ;;
     rocky-xrdp)
         build_image \
             "rocky-9-xrdp.pkr.hcl" \
-            "output-rocky-xrdp/rocky-9-xrdp.qcow2" \
+            "output-rocky-9-xrdp/rocky-9-xrdp.qcow2" \
             "images/rocky-9-xrdp.img"
         ;;
     help|--help|-h)
