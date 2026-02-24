@@ -29,7 +29,7 @@ variable "user_password" {
   description = "Password for the default user account (used in Cloud-Init)"
 }
 
-# OS-specific locals - sysprep operations for Ubuntu
+# OS-specific locals - sysprep operations for Rocky
 locals {
   ssh_pubkey = file("~/.ssh/id_ed25519.pub")
   sysprep_operations = join(",", [
