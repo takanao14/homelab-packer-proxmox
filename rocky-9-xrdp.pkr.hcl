@@ -43,9 +43,14 @@ source "qemu" "rocky9-xrdp" {
   ssh_timeout        = "15m"
 
   # Cloud-Init をシードディスクとして接続
-  cd_files = ["./rocky-data/user-data", "./rocky-data/meta-data"]
+  cd_content = {
+    "/user-data" = templatefile("./cinit/rocky/user-data.pkrtpl.hcl", {
+      ssh_pubkey    = local.ssh_pubkey
+      user_password = var.user_password
+    }),
+    "/meta-data" = file("./cinit/rocky/meta-data")
+  }
   cd_label = "cidata"
-
   # ヘッドレス（画面なし）で実行
   headless           = false
 }

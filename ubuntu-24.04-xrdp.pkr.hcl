@@ -42,9 +42,14 @@ source "qemu" "ubuntu_example" {
   ssh_timeout        = "15m"
   
   # Cloud-Init をシードディスクとして接続
-  cd_files = ["./http/user-data", "./http/meta-data"]
+  cd_content = {
+    "/user-data" = templatefile("./cinit/ubuntu/user-data.pkrtpl.hcl", {
+      ssh_pubkey    = local.ssh_pubkey
+      user_password = var.user_password
+    }),
+    "/meta-data" = file("./cinit/ubuntu/meta-data")
+  }
   cd_label = "cidata"
-
   # ヘッドレス（画面なし）で実行
   headless           = true
 }
