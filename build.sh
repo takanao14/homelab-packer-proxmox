@@ -84,6 +84,9 @@ build_image() {
 
     check_overwrite "$image_file" "$packer_output_dir"
 
+    echo "Initializing Packer..."
+    packer init "$packer_file"
+
     echo "Building ${packer_vm_name}..."
     packer build \
         -var "output_directory=${packer_output_dir}" \
