@@ -11,7 +11,7 @@ Build VM images using Packer
 OPTIONS:
     ubuntu         Build a basic Ubuntu 24.04 image with the QEMU Guest Agent and the timezone set to JST
     ubuntu-xrdp    Build Ubuntu 24.04 image with XRDP desktop environment
-    rocky          Build a basic Rocky Linux image with the timezone set to JST
+    rocky10        Build a basic Rocky 10 Linux image with the timezone set to JST
     rocky-xrdp     Build Rocky Linux image with XRDP (not yet implemented)
     help           Display this help message
 
@@ -88,7 +88,7 @@ case "$BUILD_TARGET" in
             "ubuntu-24.04-xrdp.qcow2" \
             "images/ubuntu-24.04-xrdp.img"
         ;;
-    rocky)
+    rocky10)
         build_image \
             "rocky-10-custom.pkr.hcl" \
             "output-rocky" \

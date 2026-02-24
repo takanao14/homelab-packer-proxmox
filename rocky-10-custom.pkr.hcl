@@ -52,15 +52,15 @@ locals {
     "tmp-files",
     "udev-persistent-net",
     "utmp",
-    # "rpm-db",
-    # "yum-uuid",
+    "rpm-db",
+    "yum-uuid",
   ])
 }
 
-source "qemu" "ubuntu_custom" {
+source "qemu" "rocky10_custom" {
   # 公式イメージのURLとチェックサム
-  iso_url      = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
-  iso_checksum = "file:https://cloud-images.ubuntu.com/noble/current/SHA256SUMS"
+  iso_url      = "https://download.rockylinux.org/pub/rocky/10/images/x86_64/Rocky-10-GenericCloud-Base.latest.x86_64.qcow2"
+  iso_checksum = "file:https://download.rockylinux.org/pub/rocky/10/images/x86_64/CHECKSUM"
   disk_image   = true
 
   cpus      = 2
@@ -75,17 +75,17 @@ source "qemu" "ubuntu_custom" {
   accelerator      = "kvm"
 
   # SSH接続設定
-  ssh_username   = "ubuntu"
+  ssh_username   = "rocky"
   ssh_agent_auth = true
   ssh_timeout    = "15m"
 
   # Cloud-Init をシードディスクとして接続
   cd_content = {
-    "/user-data" = templatefile("./cinit/ubuntu/user-data.pkrtpl.hcl", {
+    "/user-data" = templatefile("./cinit/rocky/user-data.pkrtpl.hcl", {
       ssh_pubkey    = local.ssh_pubkey
       user_password = var.user_password
     }),
-    "/meta-data" = file("./cinit/ubuntu/meta-data")
+    "/meta-data" = file("./cinit/rocky/meta-data")
   }
   cd_label = "cidata"
   # ヘッドレス（画面なし）で実行
@@ -93,20 +93,20 @@ source "qemu" "ubuntu_custom" {
 }
 
 build {
-  sources = ["source.qemu.ubuntu_custom"]
+  sources = ["source.qemu.rocky10_custom"]
 
   # パッケージのインストールとクリーンアップ
   provisioner "shell" {
     scripts = [
-      "scripts/ubuntu/qemu-ga.sh",
-      "scripts/ubuntu/cleanup.sh"
+      "scripts/rocky/timezone.sh",
+      "scripts/rocky/cleanup.sh"
     ]
     execute_command = "chmod +x {{ .Path }}; sudo -S bash -c '{{ .Vars }} {{ .Path }}'"
   }
 
   post-processor "shell-local" {
     inline = [
-      "virt-sysprep --remove-user-accounts ubuntu --operations ${local.sysprep_operations} -a ${var.output_directory}/${var.vm_name}",
+      "virt-sysprep --remove-user-accounts rocky --operations ${local.sysprep_operations} -a ${var.output_directory}/${var.vm_name}",
       "virt-sparsify --compress ${var.output_directory}/${var.vm_name} ${var.image_name}",
     ]
   }
