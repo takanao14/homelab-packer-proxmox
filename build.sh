@@ -9,6 +9,7 @@ Usage: $0 [OPTION]
 Build VM images using Packer
 
 OPTIONS:
+    -y             Force overwrite existing images without prompting
     ubuntu         Build a basic Ubuntu 24.04 image with the QEMU Guest Agent and the timezone set to JST
     ubuntu-xrdp    Build Ubuntu 24.04 image with XRDP service
     rocky10        Build a basic Rocky 10 Linux image with the timezone set to JST
@@ -22,6 +23,26 @@ EXAMPLES:
 EOF
     exit 1
 }
+
+FORCE_OVERWRITE=false
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -y)
+            FORCE_OVERWRITE=true
+            shift
+            ;;
+        -h|--help)
+            usage
+            ;;
+        -*)
+            echo "Error: Unknown option '$1'"
+            usage
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
 
 if [ $# -eq 0 ]; then
     echo "Error: No build target specified"
@@ -38,11 +59,13 @@ check_overwrite() {
     local output_dir="$2"
     if [ -f "$image_file" ] || [ -d "$output_dir" ]; then
         echo "Warning: Destination file '$image_file' already exists"
-        read -p "Do you want to overwrite it? (y/N) " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            echo "Build cancelled by user"
-            exit 0
+        if [ "$FORCE_OVERWRITE" = false ]; then
+            read -p "Do you want to overwrite it? (y/N) " -n 1 -r
+            echo
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                echo "Build cancelled by user"
+                exit 0
+            fi
         fi
         rm -rf "$image_file"
         rm -rf "$output_dir"
