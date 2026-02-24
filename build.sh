@@ -12,8 +12,8 @@ OPTIONS:
     -y             Force overwrite existing images without prompting
     ubuntu         Build a basic Ubuntu 24.04 image with the QEMU Guest Agent and the timezone set to JST
     ubuntu-xrdp    Build Ubuntu 24.04 image with XRDP service
-    rocky10        Build a basic Rocky 10 Linux image with the timezone set to JST
-    rocky9-xrdp    Build Rocky Linux image with XRDP service
+    rocky          Build a basic Rocky 10 Linux image with the timezone set to JST
+    rocky-xrdp     Build Rocky Linux image with XRDP service
     help           Display this help message
 
 EXAMPLES:
@@ -24,41 +24,12 @@ EOF
     exit 1
 }
 
-FORCE_OVERWRITE=false
-while [[ $# -gt 0 ]]; do
-    case "$1" in
-        -y)
-            FORCE_OVERWRITE=true
-            shift
-            ;;
-        -h|--help)
-            usage
-            ;;
-        -*)
-            echo "Error: Unknown option '$1'"
-            usage
-            ;;
-        *)
-            break
-            ;;
-    esac
-done
-
-if [ $# -eq 0 ]; then
-    echo "Error: No build target specified"
-    usage
-fi
-
-BUILD_TARGET="$1"
-
-mkdir -p images
-
 # Confirm overwrite when output already exists.
 check_overwrite() {
     local image_file="$1"
     local output_dir="$2"
     if [ -f "$image_file" ] || [ -d "$output_dir" ]; then
-        echo "Warning: Destination file '$image_file' already exists"
+        echo "Warning: Destination file '$image_file' or output directory '$output_dir' already exists"
         if [ "$FORCE_OVERWRITE" = false ]; then
             if [ ! -t 0 ]; then
                 echo "Error: Non-interactive terminal and destination already exists. Use -y to force overwrite."
@@ -77,7 +48,7 @@ check_overwrite() {
 }
 
 # Run a Packer build for the given target.
-# Arguments: packer_file, packer_output_dir, packer_vm_name, image_file
+# Arguments: packer_file, packer_output, image_file
 build_image() {
     local packer_file="$1"
     local packer_output="$2"
@@ -108,6 +79,35 @@ build_image() {
         exit 1
     fi
 }
+
+FORCE_OVERWRITE=false
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -y)
+            FORCE_OVERWRITE=true
+            shift
+            ;;
+        -h|--help)
+            usage
+            ;;
+        -*)
+            echo "Error: Unknown option '$1'"
+            usage
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+if [ $# -eq 0 ]; then
+    echo "Error: No build target specified"
+    usage
+fi
+
+BUILD_TARGET="$1"
+
+mkdir -p images
 
 # Map CLI targets to their Packer templates and outputs.
 case "$BUILD_TARGET" in
