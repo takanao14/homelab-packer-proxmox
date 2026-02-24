@@ -1,6 +1,5 @@
 #!/bin/bash
-# Cleanup script for Packer image preparation
-# This script is intended to be run inside the VM image during the Packer build process.
+# Clean up packages and cloud-init data before running virt-sysprep
 
 set -euo pipefail
 
@@ -16,5 +15,4 @@ rm -rf /var/lib/apt/lists/*
 # Clean up cloud-init configuration and data
 cloud-init clean --logs --seed
 
-# Remove the default ubuntu user created during installation
-# userdel -r -f ubuntu
+sync
