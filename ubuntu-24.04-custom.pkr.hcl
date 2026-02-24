@@ -52,13 +52,11 @@ locals {
     "tmp-files",
     "udev-persistent-net",
     "utmp",
-    # "rpm-db",
-    # "yum-uuid",
   ])
 }
 
 source "qemu" "ubuntu_custom" {
-  # 公式イメージのURLとチェックサム
+  # Official image URL and checksum
   iso_url      = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
   iso_checksum = "file:https://cloud-images.ubuntu.com/noble/current/SHA256SUMS"
   disk_image   = true
@@ -67,19 +65,19 @@ source "qemu" "ubuntu_custom" {
   memory    = 2048
   cpu_model = "host"
 
-  # 出力設定
+  # Output settings
   output_directory = var.output_directory
   vm_name          = var.vm_name
   format           = "qcow2"
   disk_size        = "10G"
   accelerator      = "kvm"
 
-  # SSH接続設定
+  # SSH connection settings
   ssh_username   = "ubuntu"
   ssh_agent_auth = true
   ssh_timeout    = "15m"
 
-  # Cloud-Init をシードディスクとして接続
+  # Attach Cloud-Init as a seed disk
   cd_content = {
     "/user-data" = templatefile("./cinit/ubuntu/user-data.pkrtpl.hcl", {
       ssh_pubkey    = local.ssh_pubkey
@@ -88,14 +86,15 @@ source "qemu" "ubuntu_custom" {
     "/meta-data" = file("./cinit/ubuntu/meta-data")
   }
   cd_label = "cidata"
-  # ヘッドレス（画面なし）で実行
+
+  # Run headless (no display)
   headless = true
 }
 
 build {
   sources = ["source.qemu.ubuntu_custom"]
 
-  # パッケージのインストールとクリーンアップ
+  # Install packages and clean up
   provisioner "shell" {
     scripts = [
       "scripts/ubuntu/qemu-ga.sh",

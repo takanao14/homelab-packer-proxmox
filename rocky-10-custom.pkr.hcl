@@ -58,7 +58,7 @@ locals {
 }
 
 source "qemu" "rocky10_custom" {
-  # 公式イメージのURLとチェックサム
+  # Official image URL and checksum
   iso_url      = "https://download.rockylinux.org/pub/rocky/10/images/x86_64/Rocky-10-GenericCloud-Base.latest.x86_64.qcow2"
   iso_checksum = "file:https://download.rockylinux.org/pub/rocky/10/images/x86_64/CHECKSUM"
   disk_image   = true
@@ -67,19 +67,19 @@ source "qemu" "rocky10_custom" {
   memory    = 2048
   cpu_model = "host"
 
-  # 出力設定
+  # Output settings
   output_directory = var.output_directory
   vm_name          = var.vm_name
   format           = "qcow2"
   disk_size        = "10G"
   accelerator      = "kvm"
 
-  # SSH接続設定
+  # SSH connection settings
   ssh_username   = "rocky"
   ssh_agent_auth = true
   ssh_timeout    = "15m"
 
-  # Cloud-Init をシードディスクとして接続
+  # Attach Cloud-Init as a seed disk
   cd_content = {
     "/user-data" = templatefile("./cinit/rocky/user-data.pkrtpl.hcl", {
       ssh_pubkey    = local.ssh_pubkey
@@ -88,14 +88,15 @@ source "qemu" "rocky10_custom" {
     "/meta-data" = file("./cinit/rocky/meta-data")
   }
   cd_label = "cidata"
-  # ヘッドレス（画面なし）で実行
+
+  # Run headless (no display)
   headless = true
 }
 
 build {
   sources = ["source.qemu.rocky10_custom"]
 
-  # パッケージのインストールとクリーンアップ
+  # Install packages and clean up
   provisioner "shell" {
     scripts = [
       "scripts/rocky/timezone.sh",
