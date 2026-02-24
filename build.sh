@@ -76,9 +76,11 @@ check_overwrite() {
 # Arguments: packer_file, packer_output_dir, packer_vm_name, image_file
 build_image() {
     local packer_file="$1"
-    local packer_output_dir="$2"
-    local packer_vm_name="$3"
-    local image_file="$4"
+    local packer_output="$2"
+    local image_file="$3"
+
+    local packer_output_dir=$(dirname "$packer_output")
+    local packer_vm_name=$(basename "$packer_output")
 
     check_overwrite "$image_file" "$packer_output_dir"
 
@@ -89,8 +91,13 @@ build_image() {
         -var "image_name=${image_file}" \
         "$packer_file"
 
-    if [ ! -f "$packer_output_dir/$packer_vm_name" ]; then
-        echo "Error: Source file '$packer_output_dir/$packer_vm_name' not found after build"
+    if [ ! -f "${packer_output}" ]; then
+        echo "Error: Source file '${packer_output}' not found after build"
+        exit 1
+    fi
+
+    if [ ! -f "${image_file}" ]; then
+        echo "Error: Destination file '${image_file}' not found after build"
         exit 1
     fi
 }
@@ -100,29 +107,25 @@ case "$BUILD_TARGET" in
     ubuntu)
         build_image \
             "ubuntu-24.04-custom.pkr.hcl" \
-            "output-ubuntu-custom" \
-            "ubuntu-24.04-custom.qcow2" \
+            "output-ubuntu-custom/ubuntu-24.04-custom.qcow2" \
             "images/ubuntu-24.04-custom.img"
         ;;
     ubuntu-xrdp)
         build_image \
             "ubuntu-24.04-xrdp.pkr.hcl" \
-            "output-ubuntu-xrdp" \
-            "ubuntu-24.04-xrdp.qcow2" \
+            "output-ubuntu-xrdp/ubuntu-24.04-xrdp.qcow2" \
             "images/ubuntu-24.04-xrdp.img"
         ;;
     rocky10)
         build_image \
             "rocky-10-custom.pkr.hcl" \
-            "output-rocky" \
-            "rocky-10-custom.qcow2" \
+            "output-rocky/rocky-10-custom.qcow2" \
             "images/rocky-10-custom.img"
         ;;
     rocky-xrdp)
         build_image \
             "rocky-9-xrdp.pkr.hcl" \
-            "output-rocky-xrdp" \
-            "rocky-9-xrdp.qcow2" \
+            "output-rocky-xrdp/rocky-9-xrdp.qcow2" \
             "images/rocky-9-xrdp.img"
         ;;
     help|--help|-h)
