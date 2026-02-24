@@ -8,8 +8,14 @@ terraform {
 
 inputs = {
   images = {
-    "ubuntu-2404-custom" = {
+    "ubuntu-24.04-custom" = {
       file_name    = "${get_parent_terragrunt_dir()}/../images/ubuntu-24.04-custom.img"
+      content_type = "iso"
+      node_name    = "node1"
+      datastore_id = "local"
+    }
+    "rocky-10-custom" = {
+      file_name    = "${get_parent_terragrunt_dir()}/../images/rocky-10-custom.img"
       content_type = "iso"
       node_name    = "node1"
       datastore_id = "local"
