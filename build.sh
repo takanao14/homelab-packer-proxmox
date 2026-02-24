@@ -60,6 +60,10 @@ check_overwrite() {
     if [ -f "$image_file" ] || [ -d "$output_dir" ]; then
         echo "Warning: Destination file '$image_file' already exists"
         if [ "$FORCE_OVERWRITE" = false ]; then
+            if [ ! -t 0 ]; then
+                echo "Error: Non-interactive terminal and destination already exists. Use -y to force overwrite."
+                exit 1
+            fi
             read -p "Do you want to overwrite it? (y/N) " -n 1 -r
             echo
             if [[ ! $REPLY =~ ^[Yy]$ ]]; then
