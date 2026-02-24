@@ -71,8 +71,8 @@ check_overwrite() {
                 exit 0
             fi
         fi
-        rm -rf "$image_file"
-        rm -rf "$output_dir"
+        [ -f "$image_file" ] && rm -f "$image_file"
+        [ -d "$output_dir" ] && rm -rf "$output_dir"
     fi
 }
 
