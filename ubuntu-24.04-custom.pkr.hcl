@@ -35,7 +35,7 @@ variable "user_password" {
   description = "Password for the ubuntu user (used in cloud-init)"
 }
 
-source "qemu" "ubuntu-24_04-qemu-ga" {
+source "qemu" "ubuntu-24_04-custom" {
   # 公式イメージのURLとチェックサム
   iso_url            = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
   iso_checksum       = "file:https://cloud-images.ubuntu.com/noble/current/SHA256SUMS"
@@ -58,7 +58,6 @@ source "qemu" "ubuntu-24_04-qemu-ga" {
   ssh_timeout        = "15m"
 
   # Cloud-Init をシードディスクとして接続
-  # cd_files = ["./cinit/ubuntu/user-data", "./cinit/ubuntu/meta-data"]
   cd_content = {
     "/user-data" = templatefile("./cinit/ubuntu/user-data.pkrtpl.hcl", {
       ssh_pubkey = local.ssh_pubkey
@@ -73,7 +72,7 @@ source "qemu" "ubuntu-24_04-qemu-ga" {
 }
 
 build {
-  sources = ["source.qemu.ubuntu-24_04-qemu-ga"]
+  sources = ["source.qemu.ubuntu-24_04-custom"]
 
   # パッケージのインストールとクリーンアップ
   provisioner "shell" {
