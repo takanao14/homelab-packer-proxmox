@@ -29,31 +29,9 @@ variable "user_password" {
   description = "Password for the default user account (used in Cloud-Init)"
 }
 
-# OS-specific locals - sysprep operations for Rocky
+# ssh_pubkey is used in Cloud-Init user-data to set up SSH access for the default user account
 locals {
   ssh_pubkey = file("~/.ssh/id_ed25519.pub")
-  sysprep_operations = join(",", [
-    "user-account",
-    "machine-id",
-    "ssh-hostkeys",
-    "ssh-userdir",
-    "backup-files",
-    "bash-history",
-    "dhcp-client-state",
-    "dhcp-server-state",
-    "kerberos-data",
-    "mail-spool",
-    "net-hostname",
-    "net-hwaddr",
-    "pacct-log",
-    "package-manager-cache",
-    "passwd-backups",
-    "tmp-files",
-    "udev-persistent-net",
-    "utmp",
-    "rpm-db",
-    "yum-uuid",
-  ])
 }
 
 source "qemu" "rocky10_custom" {
@@ -106,7 +84,6 @@ build {
 
   post-processor "shell-local" {
     inline = [
-      "virt-sysprep --remove-user-accounts rocky --operations ${local.sysprep_operations} -a ${var.output_directory}/${var.vm_name}",
       "virt-sparsify --compress ${var.output_directory}/${var.vm_name} ${var.image_name}",
     ]
   }
