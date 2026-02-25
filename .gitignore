@@ -1,6 +1,30 @@
-.idea
-.terragrunt-cache
-.terraform.*
+# Packer
+output-*/
+packer_cache/
+
+# Terraform/Terragrunt
+.terraform/
+.terragrunt-cache/
+*.tfstate
+*.tfstate.backup
+*.tfvars.json
+.terraform.lock.hcl
+
+# Generated images
+images/*.img
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.pem
+*.key
+secrets/
+
+# Environment files
 .envrc
-images/*
-output*/
