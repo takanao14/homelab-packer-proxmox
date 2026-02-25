@@ -42,7 +42,6 @@ locals {
     "dhcp-client-state",
     "dhcp-server-state",
     "kerberos-data",
-    "logfiles",
     "mail-spool",
     "net-hostname",
     "net-hwaddr",

@@ -15,4 +15,8 @@ rm -rf /var/lib/apt/lists/*
 # Clean up cloud-init configuration and data
 cloud-init clean --logs --seed
 
+# Clean up log files
+find /var/log -type f -exec truncate -s 0 {} \;
+rm -rf /var/log/journal/*
+
 sync
