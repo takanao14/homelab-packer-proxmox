@@ -31,4 +31,4 @@ rm -f /var/lib/systemd/random-seed
 truncate -s 0 /etc/machine-id
 
 sync
-userdel -r -f ubuntu || true
+userdel -r -f debian || true
