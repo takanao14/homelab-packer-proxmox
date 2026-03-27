@@ -32,5 +32,11 @@ inputs = {
       node_name    = "pve"
       datastore_id = "local"
     }
+    "debian-13-custom" = {
+      file_name    = "${get_parent_terragrunt_dir()}/../images/debian-13-custom.img"
+      content_type = "iso"
+      node_name    = "pve"
+      datastore_id = "local"
+    }
   }
 }

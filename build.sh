@@ -135,6 +135,12 @@ case "$BUILD_TARGET" in
             "output-rocky-9-xrdp/rocky-9-xrdp.qcow2" \
             "images/rocky-9-xrdp.img"
         ;;
+    debian)
+        build_image \
+            "debian-13-custom.pkr.hcl" \
+            "output-debian-13-custom/debian-13-custom.qcow2" \
+            "images/debian-13-custom.img"
+        ;;
     help|--help|-h)
         usage
         ;;
