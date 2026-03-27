@@ -26,5 +26,3 @@ Thumbs.db
 *.key
 secrets/
 
-# Environment files
-.envrc
