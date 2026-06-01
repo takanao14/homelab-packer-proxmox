@@ -1,0 +1,14 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "regexManagers": [
+    {
+      "fileMatch": ["scripts/.+/k8s\\.sh$"],
+      "matchStrings": [
+        "pkgs\\.k8s\\.io/core:/stable:/(?<currentValue>v[\\d.]+)/"
+      ],
+      "depNameTemplate": "kubernetes/kubernetes",
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "semver"
+    }
+  ]
+}
