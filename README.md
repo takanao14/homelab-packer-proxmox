@@ -6,7 +6,7 @@ This repository provides Packer templates and Terragrunt configurations to build
 
 - **Purpose**: Automated creation of cloud-init enabled golden images
 - **Target Platform**: Proxmox VE
-- **Supported OS**: Ubuntu 24.04, Rocky Linux 9/10
+- **Supported OS**: Ubuntu 24.04, Rocky Linux 9/10, Debian 13
 - **Image Variants**: Base (minimal) and XRDP (desktop environment with remote access)
 
 ## Requirements
@@ -31,11 +31,15 @@ This repository provides Packer templates and Terragrunt configurations to build
 ├── output-*/           # Packer build artifacts (temporary, gitignored)
 ├── scripts/
 │   ├── ubuntu/         # Shell provisioners for Ubuntu
-│   └── rocky/          # Shell provisioners for Rocky Linux
+│   ├── rocky/          # Shell provisioners for Rocky Linux
+│   └── debian/         # Shell provisioners for Debian
 ├── tf-cloudimage/      # Terragrunt configurations for image deployment
-│   ├── dev-*/          # Development environment image configs
-│   ├── homelab/        # Production homelab image configs
+│   ├── dev/            # Development environment image configs
+│   ├── node2/          # Node2 environment image configs
+│   ├── node3/          # Node3 environment image configs
+│   ├── prd/            # Production environment image configs
 │   └── modules/        # Shared Terraform modules
+├── renovate.json       # Renovate dependency update configuration
 ├── build.sh            # Main build script
 └── *.pkr.hcl           # Packer template files
 ```
@@ -59,22 +63,25 @@ export PROXMOX_VE_SSH_AGENT=true
 
 ```bash
 # Build base Ubuntu 24.04 image with QEMU Guest Agent
-./build.sh ubuntu
+./build.sh ubuntu24
 
 # Build Ubuntu 24.04 with XRDP and XFCE desktop
-./build.sh ubuntu-xrdp
+./build.sh ubuntu24-xrdp
 
 # Build base Rocky Linux 10 image
-./build.sh rocky
+./build.sh rocky10
 
 # Build Rocky Linux 9 with XRDP and XFCE desktop
-./build.sh rocky-xrdp
+./build.sh rocky9-xrdp
+
+# Build base Debian 13 image
+./build.sh debian13
 ```
 
 ### 3. Deploy Images to Proxmox (Optional)
 
 ```bash
-cd tf-cloudimage/homelab
+cd tf-cloudimage/prd
 terragrunt apply
 ```
 
@@ -86,20 +93,25 @@ terragrunt apply
 | [ubuntu-24.04-xrdp.pkr.hcl](ubuntu-24.04-xrdp.pkr.hcl) | Ubuntu 24.04 with XRDP + XFCE4 desktop | `images/ubuntu-24.04-xrdp.img` |
 | [rocky-10-custom.pkr.hcl](rocky-10-custom.pkr.hcl) | Rocky Linux 10 base image | `images/rocky-10-custom.img` |
 | [rocky-9-xrdp.pkr.hcl](rocky-9-xrdp.pkr.hcl) | Rocky Linux 9 with XRDP + XFCE desktop | `images/rocky-9-xrdp.img` |
+| [debian-13-custom.pkr.hcl](debian-13-custom.pkr.hcl) | Debian 13 base image | `images/debian-13-custom.img` |
 
 ## Build Script Options
 
 The `build.sh` script simplifies the build process:
 
 ```bash
-./build.sh <IMAGE_TYPE>
+./build.sh [OPTIONS] <IMAGE_TYPE>
 ```
 
+**Options:**
+- `-y` - Force overwrite existing images without prompting
+
 **Available IMAGE_TYPE values:**
-- `ubuntu` - Ubuntu 24.04 base image
-- `ubuntu-xrdp` - Ubuntu 24.04 with XRDP
-- `rocky` - Rocky Linux 10 base image
-- `rocky-xrdp` - Rocky Linux 9 with XRDP
+- `ubuntu24` - Ubuntu 24.04 base image
+- `ubuntu24-xrdp` - Ubuntu 24.04 with XRDP
+- `rocky10` - Rocky Linux 10 base image
+- `rocky9-xrdp` - Rocky Linux 9 with XRDP
+- `debian13` - Debian 13 base image
 
 ### Build Process
 
@@ -111,28 +123,30 @@ The `build.sh` script simplifies the build process:
 ### Build Output
 
 **Intermediate files (temporary):**
-- `output-ubuntu-custom/`
-- `output-ubuntu-xrdp/`
+- `output-ubuntu24-custom/`
+- `output-ubuntu24-xrdp/`
 - `output-rocky-10-custom/`
 - `output-rocky-9-xrdp/`
+- `output-debian-13-custom/`
 
 **Final images:**
 - `images/ubuntu-24.04-custom.img`
 - `images/ubuntu-24.04-xrdp.img`
 - `images/rocky-10-custom.img`
 - `images/rocky-9-xrdp.img`
+- `images/debian-13-custom.img`
 
 ## Image Deployment with Terragrunt
 
 After building images, deploy them to Proxmox VE using Terragrunt:
 
 ```bash
-# Deploy to homelab environment
-cd tf-cloudimage/homelab
+# Deploy to production environment
+cd tf-cloudimage/prd
 terragrunt apply
 
 # Deploy to development environment
-cd tf-cloudimage/dev-ubuntu-xrdp
+cd tf-cloudimage/dev
 terragrunt apply
 ```
 
@@ -140,12 +154,21 @@ terragrunt apply
 
 Each environment directory contains:
 - `terragrunt.hcl` - Environment-specific configuration
-- `.envrc` - Environment variables (using direnv)
 
 The shared modules in `tf-cloudimage/modules/` handle:
 - Image upload to Proxmox datastore
 - Content type configuration
 - Storage management
+
+## Dependency Management
+
+This repository uses [Renovate](https://docs.renovatebot.com/) to automatically track and update dependency versions. See [renovate.json](renovate.json) for configuration.
+
+**Tracked dependencies:**
+- Kubernetes minor version in `scripts/*/k8s.sh` repository URLs (via `github-tags`)
+
+**Not tracked (always installed as latest):**
+- APT/DNF packages (kubectl, helm, terraform, packer, vault, VS Code, etc.)
 
 ## Customization
 
@@ -166,10 +189,10 @@ packer build \
 Edit scripts in the `scripts/` directory:
 - `scripts/ubuntu/` - Ubuntu-specific provisioners
 - `scripts/rocky/` - Rocky Linux-specific provisioners
+- `scripts/debian/` - Debian-specific provisioners
 
 All scripts should be:
 - Idempotent
-- Well-documented with comments
 - Follow bash best practices (`set -euo pipefail`)
 
 ### Cloud-init Configuration
@@ -194,7 +217,6 @@ All base features plus:
 - ✅ XFCE4 desktop environment
 - ✅ XRDP remote desktop server
 - ✅ Pre-configured for remote access
-- ✅ Japanese language support (optional)
 
 ## Security Considerations
 
@@ -210,7 +232,7 @@ All base features plus:
 Ensure the Packer user has sudo access in the base cloud image.
 
 ### Image Already Exists
-The build script will prompt you to confirm overwriting. Answer 'y' to proceed.
+The build script will prompt you to confirm overwriting. Answer 'y' to proceed, or use `-y` flag to skip the prompt.
 
 ### Packer Cannot Connect to VM
 Check that:
