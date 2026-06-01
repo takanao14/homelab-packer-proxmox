@@ -13,15 +13,14 @@ OPTIONS:
     -y             Force overwrite existing images without prompting
     ubuntu24       Build a basic Ubuntu 24.04 image with the QEMU Guest Agent and the timezone set to JST
     ubuntu24-xrdp  Build Ubuntu 24.04 image with XRDP service
-    ubuntu26       Build a basic Ubuntu 26.04 image with the QEMU Guest Agent and the timezone set to JST
     rocky10        Build a basic Rocky 10 Linux image with the timezone set to JST
     rocky9-xrdp    Build Rocky 9 Linux image with XRDP service
     debian13       Build a basic Debian 13 image
     help           Display this help message
 
 EXAMPLES:
-    $0 ubuntu
-    $0 ubuntu-xrdp
+    $0 ubuntu24
+    $0 ubuntu24-xrdp
 
 EOF
     exit "$exit_status"
@@ -117,12 +116,6 @@ mkdir -p images
 
 # Map CLI targets to their Packer templates and outputs.
 case "$BUILD_TARGET" in
-    ubuntu26)
-        build_image \
-            "ubuntu-26.04-custom.pkr.hcl" \
-            "output-ubuntu26-custom/ubuntu-26.04-custom.qcow2" \
-            "images/ubuntu-26.04-custom.img"
-        ;;
     ubuntu24)
         build_image \
             "ubuntu-24.04-custom.pkr.hcl" \
