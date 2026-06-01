@@ -34,7 +34,7 @@ locals {
   ssh_pubkey = file("~/.ssh/id_ed25519.pub")
 }
 
-source "qemu" "debian_custom" {
+source "qemu" "debian13_custom" {
   # Official image URL and checksum
   iso_url      = "https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
   iso_checksum = "file:https://cloud.debian.org/images/cloud/trixie/latest/SHA512SUMS"
@@ -71,7 +71,7 @@ source "qemu" "debian_custom" {
 }
 
 build {
-  sources = ["source.qemu.debian_custom"]
+  sources = ["source.qemu.debian13_custom"]
 
   # Install packages and clean up
   provisioner "shell" {

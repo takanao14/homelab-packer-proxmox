@@ -34,7 +34,7 @@ locals {
   ssh_pubkey = file("~/.ssh/id_ed25519.pub")
 }
 
-source "qemu" "ubuntu_custom" {
+source "qemu" "ubuntu24_custom" {
   # Official image URL and checksum
   iso_url      = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
   iso_checksum = "file:https://cloud-images.ubuntu.com/noble/current/SHA256SUMS"
@@ -71,7 +71,7 @@ source "qemu" "ubuntu_custom" {
 }
 
 build {
-  sources = ["source.qemu.ubuntu_custom"]
+  sources = ["source.qemu.ubuntu24_custom"]
 
   # Install packages and clean up
   provisioner "shell" {

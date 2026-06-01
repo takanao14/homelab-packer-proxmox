@@ -34,10 +34,10 @@ locals {
   ssh_pubkey = file("~/.ssh/id_ed25519.pub")
 }
 
-source "qemu" "ubuntu24_xrdp" {
+source "qemu" "ubuntu26_custom" {
   # Official image URL and checksum
-  iso_url      = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
-  iso_checksum = "file:https://cloud-images.ubuntu.com/noble/current/SHA256SUMS"
+  iso_url      = "https://cloud-images.ubuntu.com/resolute/current/resolute-server-cloudimg-amd64.img"
+  iso_checksum = "file:https://cloud-images.ubuntu.com/resolute/current/SHA256SUMS"
   disk_image   = true
 
   cpus      = 2
@@ -48,7 +48,7 @@ source "qemu" "ubuntu24_xrdp" {
   output_directory = var.output_directory
   vm_name          = var.vm_name
   format           = "qcow2"
-  disk_size        = "20G"
+  disk_size        = "10G"
   accelerator      = "kvm"
 
   # SSH connection settings
@@ -71,17 +71,12 @@ source "qemu" "ubuntu24_xrdp" {
 }
 
 build {
-  sources = ["source.qemu.ubuntu24_xrdp"]
+  sources = ["source.qemu.ubuntu26_custom"]
 
   # Install packages and clean up
   provisioner "shell" {
     scripts = [
       "scripts/ubuntu/qemu-ga.sh",
-      "scripts/ubuntu/xrdp.sh",
-      "scripts/ubuntu/container.sh",
-      "scripts/ubuntu/k8s.sh",
-      "scripts/ubuntu/vm.sh",
-      "scripts/ubuntu/tools.sh",
       "scripts/ubuntu/cleanup.sh"
     ]
     execute_command = "chmod +x {{ .Path }}; sudo -S bash -c '{{ .Vars }} {{ .Path }}'"

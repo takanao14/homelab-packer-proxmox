@@ -1,8 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-# Print help and exit with non-zero status.
+# Print help and exit with the specified status.
 usage() {
+    local exit_status="${1:-1}"
     cat << EOF
 Usage: $0 [OPTION]
 
@@ -10,10 +11,12 @@ Build VM images using Packer
 
 OPTIONS:
     -y             Force overwrite existing images without prompting
-    ubuntu         Build a basic Ubuntu 24.04 image with the QEMU Guest Agent and the timezone set to JST
-    ubuntu-xrdp    Build Ubuntu 24.04 image with XRDP service
-    rocky          Build a basic Rocky 10 Linux image with the timezone set to JST
-    rocky-xrdp     Build Rocky Linux image with XRDP service
+    ubuntu24       Build a basic Ubuntu 24.04 image with the QEMU Guest Agent and the timezone set to JST
+    ubuntu24-xrdp  Build Ubuntu 24.04 image with XRDP service
+    ubuntu26       Build a basic Ubuntu 26.04 image with the QEMU Guest Agent and the timezone set to JST
+    rocky10        Build a basic Rocky 10 Linux image with the timezone set to JST
+    rocky9-xrdp    Build Rocky 9 Linux image with XRDP service
+    debian13       Build a basic Debian 13 image
     help           Display this help message
 
 EXAMPLES:
@@ -21,7 +24,7 @@ EXAMPLES:
     $0 ubuntu-xrdp
 
 EOF
-    exit 1
+    exit "$exit_status"
 }
 
 # Confirm overwrite when output already exists.
@@ -57,6 +60,9 @@ build_image() {
     local packer_output_dir=$(dirname "$packer_output")
     local packer_vm_name=$(basename "$packer_output")
 
+    echo "Setting read permissions on host kernel for libguestfs..."
+    sudo chmod 0644 /boot/vmlinuz-*
+
     check_overwrite "$image_file" "$packer_output_dir"
 
     echo "Initializing Packer..."
@@ -88,7 +94,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         -h|--help)
-            usage
+            usage 0
             ;;
         -*)
             echo "Error: Unknown option '$1'"
@@ -111,38 +117,44 @@ mkdir -p images
 
 # Map CLI targets to their Packer templates and outputs.
 case "$BUILD_TARGET" in
-    ubuntu)
+    ubuntu26)
+        build_image \
+            "ubuntu-26.04-custom.pkr.hcl" \
+            "output-ubuntu26-custom/ubuntu-26.04-custom.qcow2" \
+            "images/ubuntu-26.04-custom.img"
+        ;;
+    ubuntu24)
         build_image \
             "ubuntu-24.04-custom.pkr.hcl" \
-            "output-ubuntu-custom/ubuntu-24.04-custom.qcow2" \
+            "output-ubuntu24-custom/ubuntu-24.04-custom.qcow2" \
             "images/ubuntu-24.04-custom.img"
         ;;
-    ubuntu-xrdp)
+    ubuntu24-xrdp)
         build_image \
             "ubuntu-24.04-xrdp.pkr.hcl" \
-            "output-ubuntu-xrdp/ubuntu-24.04-xrdp.qcow2" \
+            "output-ubuntu24-xrdp/ubuntu-24.04-xrdp.qcow2" \
             "images/ubuntu-24.04-xrdp.img"
         ;;
-    rocky)
+    rocky10)
         build_image \
             "rocky-10-custom.pkr.hcl" \
             "output-rocky-10-custom/rocky-10-custom.qcow2" \
             "images/rocky-10-custom.img"
         ;;
-    rocky-xrdp)
+    rocky9-xrdp)
         build_image \
             "rocky-9-xrdp.pkr.hcl" \
             "output-rocky-9-xrdp/rocky-9-xrdp.qcow2" \
             "images/rocky-9-xrdp.img"
         ;;
-    debian)
+    debian13)
         build_image \
             "debian-13-custom.pkr.hcl" \
             "output-debian-13-custom/debian-13-custom.qcow2" \
             "images/debian-13-custom.img"
         ;;
     help|--help|-h)
-        usage
+        usage 0
         ;;
     *)
         echo "Error: Unknown build target '$BUILD_TARGET'"
