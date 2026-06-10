@@ -1,5 +1,9 @@
 # Homelab Cloud Images for Proxmox VE
 
+> [!NOTE]
+> **This repository has been merged into the `homelab` repository.**
+> Maintenance and the latest configuration now live in the `homelab` repository. This repository is archived (read-only); please make any new changes in `homelab` instead.
+
 This repository provides Packer templates and Terragrunt configurations to build and deploy cloud-init enabled VM images for Proxmox VE homelab infrastructure.
 
 ## Project Overview
